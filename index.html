@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard de Investigación Cuantitativa en Educación</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <h1>📊 Dashboard metodológico para investigación cuantitativa en educación</h1>
+    <p>
+      Herramienta para estudiantes de doctorado: diseña metodología, calcula muestra,
+      planifica validez/confiabilidad y selecciona análisis robustos y avanzados.
+    </p>
+  </header>
+
+  <main class="layout">
+    <aside class="panel controls">
+      <h2>Configuración del estudio</h2>
+
+      <label>Tipo de investigación
+        <select id="researchType">
+          <option>Básica</option>
+          <option>Aplicada</option>
+          <option>Evaluativa</option>
+          <option>Desarrollo tecnológico educativo</option>
+        </select>
+      </label>
+
+      <label>Diseño metodológico
+        <select id="design">
+          <option>No experimental - transversal descriptivo</option>
+          <option>No experimental - correlacional</option>
+          <option>No experimental - explicativo</option>
+          <option>Cuasi experimental</option>
+          <option>Experimental verdadero</option>
+          <option>Longitudinal/panel</option>
+          <option>Multinivel (estudiantes-aula-escuela)</option>
+        </select>
+      </label>
+
+      <label>Finalidad analítica
+        <select id="objective">
+          <option>Descriptivo</option>
+          <option>Relacional / explicativo</option>
+          <option>Predictivo</option>
+          <option>Evaluación de impacto</option>
+        </select>
+      </label>
+
+      <label>Técnica/instrumento principal
+        <select id="instrumentType">
+          <option>Cuestionario autoadministrado</option>
+          <option>Prueba de logro/rendimiento</option>
+          <option>Escala Likert</option>
+          <option>Rúbrica</option>
+          <option>Guía de observación estructurada</option>
+          <option>Base de datos secundaria / registros</option>
+        </select>
+      </label>
+
+      <label>Escala de medición predominante
+        <select id="scaleType">
+          <option>Nominal</option>
+          <option>Ordinal (Likert)</option>
+          <option>Intervalo</option>
+          <option>Razón</option>
+          <option>Mixta</option>
+        </select>
+      </label>
+
+      <label>Cantidad esperada de ítems
+        <input id="items" type="number" min="5" max="200" value="30" />
+      </label>
+
+      <label>Complejidad del modelo de medición
+        <select id="modelComplexity">
+          <option>Baja (escala simple unidimensional)</option>
+          <option>Media (2-4 factores correlacionados)</option>
+          <option>Alta (modelo multifactorial o de segundo orden)</option>
+        </select>
+      </label>
+
+      <fieldset>
+        <legend>Parámetros de muestra</legend>
+        <label><input id="universeKnown" type="checkbox" /> ¿Se conoce la población/universo?</label>
+        <label>Tamaño población/universo
+          <input id="universeSize" type="number" min="0" value="1000" />
+        </label>
+        <label>Nivel de confianza
+          <select id="confidence">
+            <option value="0.9">90%</option>
+            <option value="0.95" selected>95%</option>
+            <option value="0.99">99%</option>
+          </select>
+        </label>
+        <label>Error máximo aceptable
+          <select id="marginError">
+            <option value="0.1">10%</option>
+            <option value="0.07">7%</option>
+            <option value="0.05" selected>5%</option>
+            <option value="0.03">3%</option>
+          </select>
+        </label>
+        <label>Proporción esperada (p)
+          <input id="expectedProp" type="number" min="0.1" max="0.9" step="0.05" value="0.5" />
+        </label>
+      </fieldset>
+
+      <div class="buttons">
+        <button id="runBtn">Calcular y actualizar</button>
+        <button id="saveBtn" class="secondary">Guardar configuración</button>
+        <button id="loadBtn" class="secondary">Cargar configuración</button>
+        <button id="clearBtn" class="danger">Limpiar</button>
+      </div>
+    </aside>
+
+    <section class="panel results">
+      <div class="metrics">
+        <article><h3>Muestra recomendada</h3><p id="sampleMain">-</p></article>
+        <article><h3>Potencia aprox. t (d=0.40)</h3><p id="powerT">-</p></article>
+        <article><h3>Potencia aprox. correlación (r=0.25)</h3><p id="powerR">-</p></article>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="metodologia">Metodología sugerida</button>
+        <button class="tab" data-tab="muestreo">Muestreo</button>
+        <button class="tab" data-tab="validez">Validez y confiabilidad</button>
+        <button class="tab" data-tab="analisis">Análisis robusto y avanzado</button>
+      </div>
+
+      <section id="metodologia" class="tab-content active"></section>
+      <section id="muestreo" class="tab-content"></section>
+      <section id="validez" class="tab-content"></section>
+      <section id="analisis" class="tab-content"></section>
+
+      <section class="exports">
+        <h3>Exportar resultados</h3>
+        <div class="buttons">
+          <button id="exportCsv" class="secondary">Exportar CSV</button>
+          <button id="exportXls" class="secondary">Exportar XLS</button>
+          <button id="exportPdf" class="secondary">Exportar PDF</button>
+          <button id="exportJson" class="secondary">Exportar JSON</button>
+        </div>
+      </section>
+
+      <section class="improvements">
+        <h3>Mejoras identificadas y aplicadas</h3>
+        <ul>
+          <li>Persistencia local (localStorage) para guardar/cargar configuraciones del estudio.</li>
+          <li>Exportación multi-formato de resultados y parámetros (CSV, XLS, PDF, JSON).</li>
+          <li>Estructura modular para escalar hacia backend (API) y base de datos institucional.</li>
+          <li>Preparada para incorporar autenticación, historial de proyectos y colaboración entre tesistas/directores.</li>
+        </ul>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <small>
+      Nota: las estimaciones de potencia son orientativas. Para decisiones doctorales finales,
+      usa análisis de potencia específico por hipótesis/modelo.
+    </small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
