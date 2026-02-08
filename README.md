@@ -1,22 +1,20 @@
-# Tutor de Post-Doctorado para Investigación Cuantitativa en Educación
+# PRO-RESEARCH | SSDI para Investigación Cuantitativa en Educación
 
-Aplicación web (HTML/CSS/JS) que funciona como sistema experto para guiar tesis doctorales en ciencias de la educación con rigor epistemológico, metodológico y estadístico.
+Dashboard analítico web (HTML/CSS/JS) orientado a nivel doctoral y post-doctoral para planificar estudios cuantitativos con coherencia metodológica, muestreo técnicamente justificado y analítica reproducible.
 
-## Capacidades principales
+## Qué incorpora esta versión
 
-- **Fase 1 (Fundamentación):** título, objetivo general/específicos, revisión teórica y síntesis de antecedentes (APA 7).
-- **Fase 2 (Diseño y muestreo):** tipo de investigación, diseño metodológico, tipo de muestreo y cálculo de muestra inferencial.
-- **Fase 3 (Instrumentación):** estimación de tamaño de muestra para pilotaje, confiabilidad, AFE, AFC e invarianza.
-- **Matriz de consistencia automática:** validación objetivo-diseño con alertas y sugerencias.
-- **Taxonomía orientativa:** clasificación del objetivo según Bloom/SOLO.
-- **Análisis robusto:** recomendaciones avanzadas (modelos mixtos, SEM robusto, bootstrap, FDR, etc.).
-- **Análisis estadístico recomendado:** sugiere pruebas específicas (t de Student, ANOVA, Pearson, Spearman, Chi-cuadrado, etc.) según:
-  - nivel de medición de variables,
-  - número de grupos,
-  - finalidad analítica.
-- **Persistencia y exportación:** guardar/cargar proyecto (localStorage) y exportar en CSV, XLS, PDF y JSON.
+- Arquitectura visual tipo **Dashboard Analítico** con diseño sobrio académico.
+- Persistencia robusta en `localStorage` de los campos de redacción académica (título, objetivo, revisión teórica, antecedentes APA 7).
+- Diagnóstico de **dualidad muestral**:
+  - muestra probabilística inferencial (Cochran),
+  - muestra psicométrica (5:1, 10:1 y umbral robusto para SEM).
+- Alerta automática sobre limitación de inferencia con muestreos no probabilísticos.
+- Plan de **análisis estadístico recomendado** según nivel de medición, grupos y diseño (t-Student, ANOVA, Pearson, Spearman, Chi-cuadrado, ANCOVA, HLM).
+- Generador de **scripts automáticos** para SPSS/Jamovi (copiar/pegar).
+- Exportaciones: CSV, XLS, JSON, TXT (scripts) y PDF (impresión).
 
-## Ejecutar localmente
+## Ejecución local
 
 ```bash
 python -m http.server 8000
@@ -28,6 +26,6 @@ Abrir en navegador:
 
 ## Archivos
 
-- `index.html`: interfaz y estructura de módulos.
-- `styles.css`: estilos del dashboard y tarjetas de asesoría.
-- `app.js`: motor experto (coherencia, muestreo, recomendaciones, exportaciones).
+- `index.html`: estructura de módulos y navegación por pestañas.
+- `styles.css`: tema visual profesional y responsive.
+- `app.js`: motor SSDI (coherencia, muestreo dual, recomendaciones, scripts y exportaciones).
