@@ -1,18 +1,22 @@
-# PRO-RESEARCH | SSDI para Investigación Cuantitativa en Educación
+# PRO-RESEARCH | SSDM para Investigación Cuantitativa en Educación
 
-Dashboard analítico web (HTML/CSS/JS) orientado a nivel doctoral y post-doctoral para planificar estudios cuantitativos con coherencia metodológica, muestreo técnicamente justificado y analítica reproducible.
+Aplicación web en HTML/CSS/JS orientada a doctorado/post-doctorado para planificar estudios cuantitativos con rigor metodológico y alineación con estándares Scopus/WoS.
 
-## Qué incorpora esta versión
+## Novedades de esta versión
 
-- Arquitectura visual tipo **Dashboard Analítico** con diseño sobrio académico.
-- Persistencia robusta en `localStorage` de los campos de redacción académica (título, objetivo, revisión teórica, antecedentes APA 7).
-- Diagnóstico de **dualidad muestral**:
-  - muestra probabilística inferencial (Cochran),
-  - muestra psicométrica (5:1, 10:1 y umbral robusto para SEM).
-- Alerta automática sobre limitación de inferencia con muestreos no probabilísticos.
-- Plan de **análisis estadístico recomendado** según nivel de medición, grupos y diseño (t-Student, ANOVA, Pearson, Spearman, Chi-cuadrado, ANCOVA, HLM).
-- Generador de **scripts automáticos** para SPSS/Jamovi (copiar/pegar).
-- Exportaciones: CSV, XLS, JSON, TXT (scripts) y PDF (impresión).
+- Objetivos específicos dinámicos (agregar/eliminar filas con `+` y `×`).
+- Módulo de hipótesis condicional (se muestra solo cuando se activa en Fase 4).
+- Catálogo técnico ampliado de instrumentos:
+  - Escalamiento: Likert, Osgood, Guttman, Thurstone.
+  - Evaluación cognitiva: logro, estandarizadas (Saber/PISA), rúbrica analítica.
+  - Observación/Big Data: cotejo, frecuencias, registros institucionales.
+- Estilo visual `Navy & Gold` con tarjetas analíticas, badges y animaciones suaves.
+- Motor estadístico con:
+  - n inferencial por Cochran (+ corrección finita),
+  - requerimientos psicométricos (piloto, confiabilidad, AFE, AFC, invarianza),
+  - matriz de coherencia diseño ↔ hipótesis,
+  - recomendaciones de análisis estadístico robusto.
+- Persistencia local y exportaciones en CSV, XLS, JSON y PDF (impresión).
 
 ## Ejecución local
 
@@ -20,12 +24,4 @@ Dashboard analítico web (HTML/CSS/JS) orientado a nivel doctoral y post-doctora
 python -m http.server 8000
 ```
 
-Abrir en navegador:
-
-- http://localhost:8000
-
-## Archivos
-
-- `index.html`: estructura de módulos y navegación por pestañas.
-- `styles.css`: tema visual profesional y responsive.
-- `app.js`: motor SSDI (coherencia, muestreo dual, recomendaciones, scripts y exportaciones).
+Luego abrir `http://localhost:8000`.

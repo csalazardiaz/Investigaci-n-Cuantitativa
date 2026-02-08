@@ -3,135 +3,209 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PRO-RESEARCH | Dashboard de Investigación Educativa</title>
+  <title>SSDM PRO-RESEARCH | Investigación Cuantitativa en Educación</title>
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@1&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <header class="hero-advanced">
-    <div class="header-content">
-      <div class="badge">Post-Doctoral Suite</div>
-      <h1>Protocolo de Investigación Cuantitativa en Educación</h1>
-      <p>Sistema de Soporte a la Decisión Investigativa (SSDI) para diseño metodológico y análisis reproducible</p>
+  <header class="hero">
+    <div class="hero-content">
+      <span class="badge">SSDM | Nivel Post-Doctoral</span>
+      <h1>PRO-RESEARCH: Sistema de Soporte a la Decisión Metodológica</h1>
+      <p>Diseño, validación y análisis cuantitativo con estándares de publicación Scopus/WoS.</p>
     </div>
   </header>
 
-  <main class="layout-grid">
-    <aside class="panel sidebar-controls">
-      <section class="phase-section">
-        <h3><span class="step-num">01</span> Fundamentación</h3>
-        <label>Título del paper
-          <input type="text" id="studyTitle" placeholder="Ej: Mediación tecnológica y metacognición...">
+  <main class="layout">
+    <aside class="panel controls">
+      <h2>Panel de Arquitectura Metodológica</h2>
+
+      <fieldset>
+        <legend>Fase 1. Fundamentación</legend>
+        <label>Título del estudio
+          <input id="studyTitle" type="text" placeholder="Ej. Impacto del feedback adaptativo en comprensión lectora" />
         </label>
         <label>Objetivo general
-          <textarea id="objectiveGeneral" placeholder="Verbo infinitivo + variable + población..." rows="3"></textarea>
+          <textarea id="objectiveGeneral" rows="3" placeholder="Verbo en infinitivo + variable + población"></textarea>
         </label>
-        <label>Revisión de literatura (teorías base)
-          <textarea id="litReview" placeholder="Sintetice teorías principales..." rows="3"></textarea>
-        </label>
-        <label>Síntesis de antecedentes (APA 7)
-          <textarea id="apaSummary" placeholder="Autor (Año). Objetivo. Hallazgo principal..." rows="3"></textarea>
-        </label>
-      </section>
 
-      <section class="phase-section">
-        <h3><span class="step-num">02</span> Arquitectura del Diseño</h3>
-        <label>Técnica de recolección
-          <select id="instrumentType">
-            <optgroup label="Encuesta">
-              <option value="cuestionario">Cuestionario Escalar (Likert)</option>
-              <option value="diferencial">Diferencial Semántico</option>
-            </optgroup>
-            <optgroup label="Evaluación">
-              <option value="prueba_cognitiva">Prueba de Rendimiento (Objetiva)</option>
-              <option value="rubrica">Rúbrica de Desempeño Cuantificada</option>
-            </optgroup>
-            <optgroup label="Observación">
-              <option value="checklist">Lista de Cotejo Estructurada</option>
-              <option value="frecuencia">Registro de Frecuencias</option>
-            </optgroup>
+        <div class="dynamic-section">
+          <div class="label-row">
+            <label class="inline-label">Objetivos específicos</label>
+            <button id="addObjective" type="button" class="btn-circle" aria-label="Agregar objetivo">+</button>
+          </div>
+          <div id="objectivesContainer"></div>
+        </div>
+
+        <label>Revisión de literatura (teorías base)
+          <textarea id="litReview" rows="3" placeholder="Teorías/modelos que orientan el estudio"></textarea>
+        </label>
+        <label>Síntesis de antecedentes (formato APA 7)
+          <textarea id="apaSummary" rows="3" placeholder="Autor (Año), método, muestra, hallazgo, vacío"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fase 2. Estrategia metodológica</legend>
+        <label>Tipo de investigación
+          <select id="researchType">
+            <option value="Basica">Básica</option>
+            <option value="Aplicada">Aplicada</option>
+            <option value="Evaluativa">Evaluativa</option>
+            <option value="Tecnologica">Desarrollo tecnológico educativo</option>
           </select>
         </label>
+
         <label>Diseño metodológico
-          <select id="designType">
+          <select id="design">
             <option value="descriptivo">Descriptivo</option>
             <option value="correlacional">Correlacional</option>
-            <option value="explicativo">Explicativo</option>
+            <option value="explicativo">Explicativo / Ex post facto</option>
             <option value="cuasiexperimental">Cuasi-experimental</option>
             <option value="experimental">Experimental</option>
+            <option value="longitudinal">Longitudinal / panel</option>
             <option value="multinivel">Multinivel</option>
           </select>
         </label>
-        <label>Nivel de medición principal
-          <select id="scaleType">
-            <option value="escala">Intervalo / Razón (Continuo)</option>
-            <option value="ordinal">Ordinal (Likert / Rangos)</option>
-            <option value="nominal">Nominal (Dicotómico / Politómico)</option>
+
+        <label>Técnica e instrumento
+          <select id="instrumentType">
+            <optgroup label="Escalamiento">
+              <option value="likert">Escala Likert</option>
+              <option value="diferencial_osgood">Diferencial semántico de Osgood</option>
+              <option value="guttman">Escalograma de Guttman</option>
+              <option value="thurstone">Escala de Thurstone</option>
+            </optgroup>
+            <optgroup label="Evaluación cognitiva">
+              <option value="prueba_logro">Prueba de logro objetiva</option>
+              <option value="prueba_estandarizada">Prueba estandarizada (Saber/PISA)</option>
+              <option value="rubrica">Rúbrica analítica cuantificada</option>
+            </optgroup>
+            <optgroup label="Observación y Big Data">
+              <option value="cotejo">Lista de cotejo estructurada</option>
+              <option value="registro_frecuencia">Registro de frecuencias</option>
+              <option value="registros_bigdata">Análisis de registros institucionales</option>
+            </optgroup>
           </select>
         </label>
-        <label>Número de ítems del instrumento
-          <input type="number" id="itemsCount" min="5" max="300" value="20">
-        </label>
-        <label>Número de grupos a comparar
-          <input type="number" id="groupsCount" min="1" max="10" value="2">
-        </label>
-      </section>
 
-      <section class="phase-section">
-        <h3><span class="step-num">03</span> Parámetros de Muestreo</h3>
-        <label>Muestra disponible (n real)
-          <input type="number" id="availableSample" value="50">
+        <label>Número de ítems
+          <input id="items" type="number" min="1" value="20" />
         </label>
-        <label>Universo (N)
-          <input type="number" id="universeSize" value="1000">
+
+        <label>Complejidad del modelo
+          <select id="modelComplexity">
+            <option value="baja">Baja (lineal simple)</option>
+            <option value="media">Media (mediación/moderación)</option>
+            <option value="alta">Alta (SEM/multinivel)</option>
+          </select>
         </label>
-        <label>Estrategia de muestreo
-          <select id="samplingStrategy">
+      </fieldset>
+
+      <fieldset>
+        <legend>Fase 3. Muestreo y precisión</legend>
+        <label>Tipo de muestreo
+          <select id="samplingType">
             <option value="aleatorio_simple">Probabilístico: Aleatorio simple</option>
-            <option value="estratificado">Probabilístico: Estratificado proporcional</option>
+            <option value="estratificado">Probabilístico: Estratificado</option>
             <option value="conglomerados">Probabilístico: Conglomerados</option>
-            <option value="no_proba_conveniencia">No probabilístico: Conveniencia</option>
-            <option value="no_proba_bola">No probabilístico: Bola de nieve</option>
+            <option value="conveniencia">No probabilístico: Conveniencia</option>
+            <option value="bola_nieve">No probabilístico: Bola de nieve</option>
           </select>
         </label>
-      </section>
 
-      <div class="sticky-actions">
-        <button id="runBtn" class="btn-primary">Generar Asesoría Pro</button>
-        <div class="button-group-secondary">
-          <button id="saveBtn">Guardar</button>
-          <button id="loadBtn">Cargar</button>
-          <button id="clearBtn">Limpiar</button>
-          <button id="exportPdf">Exportar PDF</button>
+        <label>¿Universo conocido?
+          <select id="universeKnown">
+            <option value="si">Sí (finito)</option>
+            <option value="no">No (infinito)</option>
+          </select>
+        </label>
+
+        <label id="universeSizeLabel">Tamaño del universo (N)
+          <input id="universeSize" type="number" min="1" value="1000" />
+        </label>
+
+        <label>Nivel de confianza
+          <select id="confidence">
+            <option value="0.90">90%</option>
+            <option value="0.95" selected>95%</option>
+            <option value="0.99">99%</option>
+          </select>
+        </label>
+
+        <label>Margen de error (e)
+          <input id="marginError" type="number" min="0.01" max="0.20" step="0.01" value="0.05" />
+        </label>
+
+        <label>Muestra disponible (n real)
+          <input id="availableSample" type="number" min="1" value="120" />
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fase 4. Sistema de hipótesis</legend>
+        <label>¿El estudio formulará hipótesis?
+          <select id="hasHypothesis">
+            <option value="no">No</option>
+            <option value="si">Sí</option>
+          </select>
+        </label>
+
+        <div id="hypothesisSection" class="dynamic-section hidden">
+          <label>Tipo de hipótesis
+            <select id="hypothesisType">
+              <option value="descriptiva">Descriptiva</option>
+              <option value="correlacional">Correlacional</option>
+              <option value="diferencias">Diferencia de grupos</option>
+              <option value="causal">Causal</option>
+              <option value="nula">Nula</option>
+            </select>
+          </label>
+
+          <div class="label-row">
+            <label class="inline-label">Hipótesis específicas</label>
+            <button id="addHypothesis" type="button" class="btn-circle" aria-label="Agregar hipótesis">+</button>
+          </div>
+          <div id="hypothesesContainer"></div>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button id="runBtn" class="primary" type="button">Generar asesoría</button>
+        <div class="btn-grid">
+          <button id="saveBtn" class="secondary" type="button">Guardar</button>
+          <button id="loadBtn" class="secondary" type="button">Cargar</button>
+          <button id="clearBtn" class="danger" type="button">Limpiar</button>
         </div>
       </div>
     </aside>
 
-    <section class="results-viewer panel">
+    <section class="panel results">
       <div class="summary-cards">
-        <div class="metric-card"><span>Muestra probabilística</span><strong id="cardCochran">-</strong></div>
-        <div class="metric-card"><span>Requisito psicométrico ideal</span><strong id="cardPsych">-</strong></div>
-        <div class="metric-card"><span>Estado de suficiencia</span><strong id="cardStatus">-</strong></div>
+        <article><span>Muestra inferencial (Cochran)</span><strong id="cardCochran">-</strong></article>
+        <article><span>Requisito psicométrico ideal</span><strong id="cardPsych">-</strong></article>
+        <article><span>Coherencia diseño/hipótesis</span><strong id="cardCoherence">-</strong></article>
       </div>
 
       <div class="tabs">
-        <button class="tab active" data-tab="metodologia">Coherencia Académica</button>
-        <button class="tab" data-tab="muestreo">Análisis de Muestra</button>
-        <button class="tab" data-tab="analisis">Plan de Análisis</button>
-        <button class="tab" data-tab="scripts">Scripts SPSS/Jamovi</button>
+        <button class="tab active" data-tab="metodologia">Matriz de coherencia</button>
+        <button class="tab" data-tab="muestreo">Análisis de muestra</button>
+        <button class="tab" data-tab="validez">Validez y confiabilidad</button>
+        <button class="tab" data-tab="analisis">Análisis estadístico recomendado</button>
       </div>
-      <div id="metodologia" class="tab-content active"></div>
-      <div id="muestreo" class="tab-content"></div>
-      <div id="analisis" class="tab-content"></div>
-      <div id="scripts" class="tab-content"></div>
+
+      <section id="metodologia" class="tab-content active"></section>
+      <section id="muestreo" class="tab-content"></section>
+      <section id="validez" class="tab-content"></section>
+      <section id="analisis" class="tab-content"></section>
 
       <section class="exports">
-        <h4>Exportaciones</h4>
-        <div class="button-group-secondary">
-          <button id="exportCsv">CSV</button>
-          <button id="exportXls">XLS</button>
-          <button id="exportJson">JSON</button>
-          <button id="exportTxt">Script TXT</button>
+        <h3>Exportaciones</h3>
+        <div class="btn-grid exports-grid">
+          <button id="exportCsv" class="secondary" type="button">CSV</button>
+          <button id="exportXls" class="secondary" type="button">XLS</button>
+          <button id="exportPdf" class="secondary" type="button">PDF</button>
+          <button id="exportJson" class="secondary" type="button">JSON</button>
         </div>
       </section>
     </section>
