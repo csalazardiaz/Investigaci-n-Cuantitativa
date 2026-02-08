@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutor de Post-Doctorado | Investigación Cuantitativa en Educación</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <h1>🎓 Tutor de Post-Doctorado para Investigación Cuantitativa en Educación</h1>
+    <p>
+      Sistema experto para orientar la coherencia epistemológica, el diseño metodológico,
+      el muestreo, la validación psicométrica y el análisis estadístico robusto.
+    </p>
+  </header>
+
+  <main class="layout">
+    <aside class="panel controls">
+      <h2>Asesor de Investigación Educativa</h2>
+
+      <fieldset>
+        <legend>Fase 1: Fundamentación epistemológica</legend>
+        <label>Título del estudio
+          <input id="studyTitle" type="text" placeholder="Ej: Efecto de tutoría con IA sobre comprensión lectora" />
+        </label>
+        <label>Objetivo general
+          <textarea id="objectiveGeneral" rows="2" placeholder="Verbo en infinitivo + variable + población"></textarea>
+        </label>
+        <label>Objetivos específicos
+          <textarea id="objectivesSpecific" rows="3" placeholder="1) Describir... 2) Relacionar... 3) Explicar..."></textarea>
+        </label>
+        <label>Revisión de literatura (teorías base)
+          <textarea id="litReview" rows="2" placeholder="Teoría sociocultural, aprendizaje autorregulado, conectivismo..."></textarea>
+        </label>
+        <label>Síntesis de antecedentes (APA 7)
+          <textarea id="apaSummary" rows="2" placeholder="Autor (año), método, muestra, hallazgos, vacío"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fase 2: Diseño y muestreo</legend>
+        <label>Tipo de investigación
+          <select id="researchType">
+            <option value="Basica">Básica (Teórica)</option>
+            <option value="Aplicada">Aplicada (Resolución de problemas)</option>
+            <option value="Evaluativa">Evaluativa (Programas/Instituciones)</option>
+            <option value="Tecnologica">Desarrollo Tecnológico Educativo</option>
+          </select>
+        </label>
+
+        <label>Diseño metodológico
+          <select id="design">
+            <option value="descriptivo">Descriptivo - Simple</option>
+            <option value="correlacional">Correlacional</option>
+            <option value="explicativo">Explicativo / Ex Post Facto</option>
+            <option value="cuasiexperimental">Cuasi-experimental</option>
+            <option value="experimental">Experimental Verdadero</option>
+            <option value="longitudinal">Longitudinal / Panel</option>
+            <option value="multinivel">Multinivel (Estudiantes-Aula-Escuela)</option>
+          </select>
+        </label>
+
+        <label>Tipo de muestreo
+          <select id="samplingType">
+            <option value="probabilistico_simple">Probabilístico simple</option>
+            <option value="estratificado">Probabilístico estratificado</option>
+            <option value="conglomerados">Por conglomerados (escuela/distrito)</option>
+            <option value="no_probabilistico">No probabilístico (conveniencia)</option>
+          </select>
+        </label>
+
+        <label>Tamaño del universo/población (N)
+          <input id="universeSize" type="number" min="0" value="1000" />
+        </label>
+        <label><input id="universeKnown" type="checkbox" /> ¿Población conocida para corrección finita?</label>
+
+        <label>Nivel de confianza
+          <select id="confidence">
+            <option value="0.9">90%</option>
+            <option value="0.95" selected>95%</option>
+            <option value="0.99">99%</option>
+          </select>
+        </label>
+
+        <label>Error máximo aceptable
+          <select id="marginError">
+            <option value="0.1">10%</option>
+            <option value="0.07">7%</option>
+            <option value="0.05" selected>5%</option>
+            <option value="0.03">3%</option>
+          </select>
+        </label>
+
+        <label>Proporción esperada (p)
+          <input id="expectedProp" type="number" min="0.1" max="0.9" step="0.05" value="0.5" />
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fase 3: Instrumentación y análisis</legend>
+        <label>Técnica/instrumento principal
+          <select id="instrumentType">
+            <option>Cuestionario autoadministrado</option>
+            <option>Prueba de logro/rendimiento</option>
+            <option>Escala Likert</option>
+            <option>Rúbrica</option>
+            <option>Guía de observación estructurada</option>
+            <option>Base de datos secundaria / registros</option>
+          </select>
+        </label>
+
+        <label>Cantidad esperada de ítems
+          <input id="items" type="number" min="5" max="200" value="30" />
+        </label>
+
+        <label>Complejidad del modelo de medición
+          <select id="modelComplexity">
+            <option>Baja (escala simple unidimensional)</option>
+            <option>Media (2-4 factores correlacionados)</option>
+            <option>Alta (modelo multifactorial o de segundo orden)</option>
+          </select>
+        </label>
+
+        <label>Finalidad analítica
+          <select id="objectiveType">
+            <option>Descriptivo</option>
+            <option>Relacional / explicativo</option>
+            <option>Predictivo</option>
+            <option>Evaluación de impacto</option>
+          </select>
+        </label>
+
+        <label>Nivel de medición Variable X
+          <select id="varXScale">
+            <option>Nominal</option>
+            <option>Ordinal</option>
+            <option>Intervalo</option>
+            <option>Razón</option>
+          </select>
+        </label>
+
+        <label>Nivel de medición Variable Y
+          <select id="varYScale">
+            <option>Nominal</option>
+            <option>Ordinal</option>
+            <option>Intervalo</option>
+            <option>Razón</option>
+          </select>
+        </label>
+
+        <label>Número de grupos/comparaciones
+          <input id="groupsCount" type="number" min="1" max="10" value="2" />
+        </label>
+      </fieldset>
+
+      <div class="buttons">
+        <button id="runBtn">Generar asesoría completa</button>
+        <button id="saveBtn" class="secondary">Guardar proyecto</button>
+        <button id="loadBtn" class="secondary">Cargar proyecto</button>
+        <button id="clearBtn" class="danger">Limpiar</button>
+      </div>
+    </aside>
+
+    <section class="panel results">
+      <div class="metrics">
+        <article><h3>Muestra inferencial sugerida</h3><p id="sampleMain">-</p></article>
+        <article><h3>Potencia aprox. t (d=0.40)</h3><p id="powerT">-</p></article>
+        <article><h3>Potencia aprox. correlación (r=0.25)</h3><p id="powerR">-</p></article>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="metodologia">Reporte de consistencia</button>
+        <button class="tab" data-tab="muestreo">Muestreo y validación</button>
+        <button class="tab" data-tab="validez">Validez y confiabilidad</button>
+        <button class="tab" data-tab="analisis">Análisis robusto</button>
+        <button class="tab" data-tab="recomendado">Análisis estadístico recomendado</button>
+      </div>
+
+      <section id="metodologia" class="tab-content active"></section>
+      <section id="muestreo" class="tab-content"></section>
+      <section id="validez" class="tab-content"></section>
+      <section id="analisis" class="tab-content"></section>
+      <section id="recomendado" class="tab-content"></section>
+
+      <section class="exports">
+        <h3>Exportar resultados</h3>
+        <div class="buttons">
+          <button id="exportCsv" class="secondary">Exportar CSV</button>
+          <button id="exportXls" class="secondary">Exportar XLS</button>
+          <button id="exportPdf" class="secondary">Exportar PDF</button>
+          <button id="exportJson" class="secondary">Exportar JSON</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <small>
+      Nota metodológica: estas recomendaciones no sustituyen el juicio experto del tutor/director de tesis;
+      prioriza siempre coherencia epistemológica, validez interna y validez externa.
+    </small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
