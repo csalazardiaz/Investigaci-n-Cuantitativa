@@ -3,131 +3,195 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard de Investigación Cuantitativa en Educación</title>
+  <title>SSDM PRO-RESEARCH | Investigación Cuantitativa en Educación</title>
   <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <header class="hero">
-    <h1>📊 Dashboard metodológico para investigación cuantitativa en educación</h1>
-    <p>
-      Herramienta para estudiantes de doctorado: diseña metodología, calcula muestra,
-      planifica validez/confiabilidad y selecciona análisis robustos y avanzados.
-    </p>
+    <div class="hero-content">
+      <span class="badge">SSDM | Nivel Post-Doctoral</span>
+      <h1>PRO-RESEARCH: Sistema de Soporte a la Decisión Metodológica</h1>
+      <p>Diseño, validación y análisis cuantitativo con estándares de publicación Scopus/WoS.</p>
+    </div>
   </header>
 
   <main class="layout">
     <aside class="panel controls">
-      <h2>Configuración del estudio</h2>
-
-      <label>Tipo de investigación
-        <select id="researchType">
-          <option>Básica</option>
-          <option>Aplicada</option>
-          <option>Evaluativa</option>
-          <option>Desarrollo tecnológico educativo</option>
-        </select>
-      </label>
-
-      <label>Diseño metodológico
-        <select id="design">
-          <option>No experimental - transversal descriptivo</option>
-          <option>No experimental - correlacional</option>
-          <option>No experimental - explicativo</option>
-          <option>Cuasi experimental</option>
-          <option>Experimental verdadero</option>
-          <option>Longitudinal/panel</option>
-          <option>Multinivel (estudiantes-aula-escuela)</option>
-        </select>
-      </label>
-
-      <label>Finalidad analítica
-        <select id="objective">
-          <option>Descriptivo</option>
-          <option>Relacional / explicativo</option>
-          <option>Predictivo</option>
-          <option>Evaluación de impacto</option>
-        </select>
-      </label>
-
-      <label>Técnica/instrumento principal
-        <select id="instrumentType">
-          <option>Cuestionario autoadministrado</option>
-          <option>Prueba de logro/rendimiento</option>
-          <option>Escala Likert</option>
-          <option>Rúbrica</option>
-          <option>Guía de observación estructurada</option>
-          <option>Base de datos secundaria / registros</option>
-        </select>
-      </label>
-
-      <label>Escala de medición predominante
-        <select id="scaleType">
-          <option>Nominal</option>
-          <option>Ordinal (Likert)</option>
-          <option>Intervalo</option>
-          <option>Razón</option>
-          <option>Mixta</option>
-        </select>
-      </label>
-
-      <label>Cantidad esperada de ítems
-        <input id="items" type="number" min="5" max="200" value="30" />
-      </label>
-
-      <label>Complejidad del modelo de medición
-        <select id="modelComplexity">
-          <option>Baja (escala simple unidimensional)</option>
-          <option>Media (2-4 factores correlacionados)</option>
-          <option>Alta (modelo multifactorial o de segundo orden)</option>
-        </select>
-      </label>
+      <h2>Panel de Arquitectura Metodológica</h2>
 
       <fieldset>
-        <legend>Parámetros de muestra</legend>
-        <label><input id="universeKnown" type="checkbox" /> ¿Se conoce la población/universo?</label>
-        <label>Tamaño población/universo
-          <input id="universeSize" type="number" min="0" value="1000" />
+        <legend>Fase 1. Fundamentación</legend>
+        <label>Título del estudio
+          <input id="studyTitle" type="text" placeholder="Ej. Impacto del feedback adaptativo en comprensión lectora" />
         </label>
+        <label>Objetivo general
+          <textarea id="objectiveGeneral" rows="3" placeholder="Verbo en infinitivo + variable + población"></textarea>
+        </label>
+
+        <div class="dynamic-section">
+          <div class="label-row">
+            <label class="inline-label">Objetivos específicos</label>
+            <button id="addObjective" type="button" class="btn-circle" aria-label="Agregar objetivo">+</button>
+          </div>
+          <div id="objectivesContainer"></div>
+        </div>
+
+        <label>Revisión de literatura (teorías base)
+          <textarea id="litReview" rows="3" placeholder="Teorías/modelos que orientan el estudio"></textarea>
+        </label>
+        <label>Síntesis de antecedentes (formato APA 7)
+          <textarea id="apaSummary" rows="3" placeholder="Autor (Año), método, muestra, hallazgo, vacío"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fase 2. Estrategia metodológica</legend>
+        <label>Tipo de investigación
+          <select id="researchType">
+            <option value="Basica">Básica</option>
+            <option value="Aplicada">Aplicada</option>
+            <option value="Evaluativa">Evaluativa</option>
+            <option value="Tecnologica">Desarrollo tecnológico educativo</option>
+          </select>
+        </label>
+
+        <label>Diseño metodológico
+          <select id="design">
+            <option value="descriptivo">Descriptivo</option>
+            <option value="correlacional">Correlacional</option>
+            <option value="explicativo">Explicativo / Ex post facto</option>
+            <option value="cuasiexperimental">Cuasi-experimental</option>
+            <option value="experimental">Experimental</option>
+            <option value="longitudinal">Longitudinal / panel</option>
+            <option value="multinivel">Multinivel</option>
+          </select>
+        </label>
+
+        <label>Técnica e instrumento
+          <select id="instrumentType">
+            <optgroup label="Escalamiento">
+              <option value="likert">Escala Likert</option>
+              <option value="diferencial_osgood">Diferencial semántico de Osgood</option>
+              <option value="guttman">Escalograma de Guttman</option>
+              <option value="thurstone">Escala de Thurstone</option>
+            </optgroup>
+            <optgroup label="Evaluación cognitiva">
+              <option value="prueba_logro">Prueba de logro objetiva</option>
+              <option value="prueba_estandarizada">Prueba estandarizada (Saber/PISA)</option>
+              <option value="rubrica">Rúbrica analítica cuantificada</option>
+            </optgroup>
+            <optgroup label="Observación y Big Data">
+              <option value="cotejo">Lista de cotejo estructurada</option>
+              <option value="registro_frecuencia">Registro de frecuencias</option>
+              <option value="registros_bigdata">Análisis de registros institucionales</option>
+            </optgroup>
+          </select>
+        </label>
+
+        <label>Número de ítems
+          <input id="items" type="number" min="1" value="20" />
+        </label>
+
+        <label>Complejidad del modelo
+          <select id="modelComplexity">
+            <option value="baja">Baja (lineal simple)</option>
+            <option value="media">Media (mediación/moderación)</option>
+            <option value="alta">Alta (SEM/multinivel)</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fase 3. Muestreo y precisión</legend>
+        <label>Tipo de muestreo
+          <select id="samplingType">
+            <option value="aleatorio_simple">Probabilístico: Aleatorio simple</option>
+            <option value="estratificado">Probabilístico: Estratificado</option>
+            <option value="conglomerados">Probabilístico: Conglomerados</option>
+            <option value="conveniencia">No probabilístico: Conveniencia</option>
+            <option value="bola_nieve">No probabilístico: Bola de nieve</option>
+          </select>
+        </label>
+
+        <label>¿Universo conocido?
+          <select id="universeKnown">
+            <option value="si">Sí (finito)</option>
+            <option value="no">No (infinito)</option>
+          </select>
+        </label>
+
+        <label id="universeSizeLabel">Tamaño del universo (N)
+          <input id="universeSize" type="number" min="1" value="1000" />
+        </label>
+
         <label>Nivel de confianza
           <select id="confidence">
-            <option value="0.9">90%</option>
+            <option value="0.90">90%</option>
             <option value="0.95" selected>95%</option>
             <option value="0.99">99%</option>
           </select>
         </label>
-        <label>Error máximo aceptable
-          <select id="marginError">
-            <option value="0.1">10%</option>
-            <option value="0.07">7%</option>
-            <option value="0.05" selected>5%</option>
-            <option value="0.03">3%</option>
-          </select>
+
+        <label>Margen de error (e)
+          <input id="marginError" type="number" min="0.01" max="0.20" step="0.01" value="0.05" />
         </label>
-        <label>Proporción esperada (p)
-          <input id="expectedProp" type="number" min="0.1" max="0.9" step="0.05" value="0.5" />
+
+        <label>Muestra disponible (n real)
+          <input id="availableSample" type="number" min="1" value="120" />
         </label>
       </fieldset>
 
-      <div class="buttons">
-        <button id="runBtn">Calcular y actualizar</button>
-        <button id="saveBtn" class="secondary">Guardar configuración</button>
-        <button id="loadBtn" class="secondary">Cargar configuración</button>
-        <button id="clearBtn" class="danger">Limpiar</button>
+      <fieldset>
+        <legend>Fase 4. Sistema de hipótesis</legend>
+        <label>¿El estudio formulará hipótesis?
+          <select id="hasHypothesis">
+            <option value="no">No</option>
+            <option value="si">Sí</option>
+          </select>
+        </label>
+
+        <div id="hypothesisSection" class="dynamic-section hidden">
+          <label>Tipo de hipótesis
+            <select id="hypothesisType">
+              <option value="descriptiva">Descriptiva</option>
+              <option value="correlacional">Correlacional</option>
+              <option value="diferencias">Diferencia de grupos</option>
+              <option value="causal">Causal</option>
+              <option value="nula">Nula</option>
+            </select>
+          </label>
+
+          <div class="label-row">
+            <label class="inline-label">Hipótesis específicas</label>
+            <button id="addHypothesis" type="button" class="btn-circle" aria-label="Agregar hipótesis">+</button>
+          </div>
+          <div id="hypothesesContainer"></div>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button id="runBtn" class="primary" type="button">Generar asesoría</button>
+        <div class="btn-grid">
+          <button id="saveBtn" class="secondary" type="button">Guardar</button>
+          <button id="loadBtn" class="secondary" type="button">Cargar</button>
+          <button id="clearBtn" class="danger" type="button">Limpiar</button>
+        </div>
       </div>
     </aside>
 
     <section class="panel results">
-      <div class="metrics">
-        <article><h3>Muestra recomendada</h3><p id="sampleMain">-</p></article>
-        <article><h3>Potencia aprox. t (d=0.40)</h3><p id="powerT">-</p></article>
-        <article><h3>Potencia aprox. correlación (r=0.25)</h3><p id="powerR">-</p></article>
+      <div class="summary-cards">
+        <article><span>Muestra inferencial (Cochran)</span><strong id="cardCochran">-</strong></article>
+        <article><span>Requisito psicométrico ideal</span><strong id="cardPsych">-</strong></article>
+        <article><span>Coherencia diseño/hipótesis</span><strong id="cardCoherence">-</strong></article>
       </div>
 
       <div class="tabs">
-        <button class="tab active" data-tab="metodologia">Metodología sugerida</button>
-        <button class="tab" data-tab="muestreo">Muestreo</button>
+        <button class="tab active" data-tab="metodologia">Matriz de coherencia</button>
+        <button class="tab" data-tab="muestreo">Análisis de muestra</button>
         <button class="tab" data-tab="validez">Validez y confiabilidad</button>
-        <button class="tab" data-tab="analisis">Análisis robusto y avanzado</button>
+        <button class="tab" data-tab="analisis">Análisis estadístico recomendado</button>
       </div>
 
       <section id="metodologia" class="tab-content active"></section>
@@ -136,33 +200,16 @@
       <section id="analisis" class="tab-content"></section>
 
       <section class="exports">
-        <h3>Exportar resultados</h3>
-        <div class="buttons">
-          <button id="exportCsv" class="secondary">Exportar CSV</button>
-          <button id="exportXls" class="secondary">Exportar XLS</button>
-          <button id="exportPdf" class="secondary">Exportar PDF</button>
-          <button id="exportJson" class="secondary">Exportar JSON</button>
+        <h3>Exportaciones</h3>
+        <div class="btn-grid exports-grid">
+          <button id="exportCsv" class="secondary" type="button">CSV</button>
+          <button id="exportXls" class="secondary" type="button">XLS</button>
+          <button id="exportPdf" class="secondary" type="button">PDF</button>
+          <button id="exportJson" class="secondary" type="button">JSON</button>
         </div>
-      </section>
-
-      <section class="improvements">
-        <h3>Mejoras identificadas y aplicadas</h3>
-        <ul>
-          <li>Persistencia local (localStorage) para guardar/cargar configuraciones del estudio.</li>
-          <li>Exportación multi-formato de resultados y parámetros (CSV, XLS, PDF, JSON).</li>
-          <li>Estructura modular para escalar hacia backend (API) y base de datos institucional.</li>
-          <li>Preparada para incorporar autenticación, historial de proyectos y colaboración entre tesistas/directores.</li>
-        </ul>
       </section>
     </section>
   </main>
-
-  <footer>
-    <small>
-      Nota: las estimaciones de potencia son orientativas. Para decisiones doctorales finales,
-      usa análisis de potencia específico por hipótesis/modelo.
-    </small>
-  </footer>
 
   <script src="app.js"></script>
 </body>

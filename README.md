@@ -1,41 +1,27 @@
-# Dashboard de Metodología Cuantitativa en Educación (HTML/CSS/JS)
+# PRO-RESEARCH | SSDM para Investigación Cuantitativa en Educación
 
-Aplicación web para orientar el diseño, ejecución y análisis de proyectos de investigación cuantitativa en educación, enfocada en estudiantes de doctorado.
+Aplicación web en HTML/CSS/JS orientada a doctorado/post-doctorado para planificar estudios cuantitativos con rigor metodológico y alineación con estándares Scopus/WoS.
 
-## ¿Qué resuelve?
+## Novedades de esta versión
 
-- Definición guiada de tipo y diseño de investigación.
-- Selección de técnicas e instrumentos y cantidad de ítems esperada.
-- Cálculo de muestra recomendada (Cochran + corrección finita).
-- Recomendación de sujetos para pilotaje, confiabilidad, AFE, AFC e invarianza.
-- Estimaciones de potencia estadística (diferencia de medias y correlación).
-- Recomendaciones de validez, confiabilidad y análisis robusto/avanzado.
+- Objetivos específicos dinámicos (agregar/eliminar filas con `+` y `×`).
+- Módulo de hipótesis condicional (se muestra solo cuando se activa en Fase 4).
+- Catálogo técnico ampliado de instrumentos:
+  - Escalamiento: Likert, Osgood, Guttman, Thurstone.
+  - Evaluación cognitiva: logro, estandarizadas (Saber/PISA), rúbrica analítica.
+  - Observación/Big Data: cotejo, frecuencias, registros institucionales.
+- Estilo visual `Navy & Gold` con tarjetas analíticas, badges y animaciones suaves.
+- Motor estadístico con:
+  - n inferencial por Cochran (+ corrección finita),
+  - requerimientos psicométricos (piloto, confiabilidad, AFE, AFC, invarianza),
+  - matriz de coherencia diseño ↔ hipótesis,
+  - recomendaciones de análisis estadístico robusto.
+- Persistencia local y exportaciones en CSV, XLS, JSON y PDF (impresión).
 
-## Mejoras aplicadas
-
-- Migración completa a interfaz web estática (`index.html`, `styles.css`, `app.js`).
-- Persistencia local de configuraciones mediante `localStorage`.
-- Exportación de resultados en múltiples formatos:
-  - CSV
-  - XLS
-  - PDF (impresión del navegador)
-  - JSON
-
-## Ejecutar localmente
-
-Opción simple:
+## Ejecución local
 
 ```bash
 python -m http.server 8000
 ```
 
-Luego abrir en navegador:
-
-- `http://localhost:8000`
-
-## Estructura
-
-- `index.html`: interfaz principal.
-- `styles.css`: estilos visuales y layout responsivo.
-- `app.js`: lógica estadística, recomendaciones, persistencia y exportaciones.
-
+Luego abrir `http://localhost:8000`.

@@ -1,284 +1,246 @@
 const $ = (id) => document.getElementById(id);
 
 const formIds = [
-  "researchType", "design", "objective", "instrumentType", "scaleType",
-  "items", "modelComplexity", "universeKnown", "universeSize", "confidence",
-  "marginError", "expectedProp"
+  "studyTitle", "objectiveGeneral", "litReview", "apaSummary", "researchType", "design",
+  "instrumentType", "items", "modelComplexity", "samplingType", "universeKnown", "universeSize",
+  "confidence", "marginError", "availableSample", "hasHypothesis", "hypothesisType"
 ];
 
+const STORAGE_KEY = "ssdm_pro_research_config";
+
+function createDynamicRow(containerId, inputClass, placeholder, value = "") {
+  const container = $(containerId);
+  const row = document.createElement("div");
+  row.className = "dynamic-row";
+  row.innerHTML = `
+    <input type="text" class="${inputClass}" placeholder="${placeholder}" value="${value}">
+    <button type="button" class="remove-btn" aria-label="Eliminar fila">×</button>
+  `;
+  row.querySelector(".remove-btn").addEventListener("click", () => {
+    if (container.children.length > 1) {
+      row.remove();
+    } else {
+      row.querySelector("input").value = "";
+    }
+  });
+  container.appendChild(row);
+}
+
+function getDynamicValues(inputClass) {
+  return Array.from(document.querySelectorAll(`.${inputClass}`))
+    .map((n) => n.value.trim())
+    .filter(Boolean);
+}
+
+function setDynamicValues(containerId, inputClass, values, placeholder) {
+  const container = $(containerId);
+  container.innerHTML = "";
+  const safeValues = values && values.length ? values : [""];
+  safeValues.forEach((value) => createDynamicRow(containerId, inputClass, placeholder, value));
+}
+
 function zFromConfidence(confidence) {
-  if (confidence === 0.9) return 1.645;
-  if (confidence === 0.95) return 1.96;
-  if (confidence === 0.99) return 2.576;
+  const c = Number(confidence);
+  if (c === 0.9) return 1.645;
+  if (c === 0.99) return 2.576;
   return 1.96;
 }
 
 function cochranSampleSize(z, p, e) {
-  const q = 1 - p;
-  return (z * z * p * q) / (e * e);
+  return (z * z * p * (1 - p)) / (e * e);
 }
 
 function finitePopulationCorrection(n0, N) {
-  if (N <= 0) return n0;
+  if (!N || N <= 0) return n0;
   return n0 / (1 + ((n0 - 1) / N));
 }
 
-function recommendedValidationSample(items, modelComplexity) {
-  const itemRule = Math.max(5 * items, 100);
-  const conservative = Math.max(10 * items, 200);
-  const cfaFloor = modelComplexity.startsWith("Baja") ? 200 : modelComplexity.startsWith("Media") ? 300 : 400;
+function psychometricRequirements(items, complexity) {
+  const min = Math.max(5 * items, 100);
+  const ideal = Math.max(10 * items, 200);
+  const sem = complexity === "alta" ? 400 : complexity === "media" ? 300 : 200;
   return {
     piloto: Math.max(30, Math.min(60, items * 2)),
-    alfa_omega: itemRule,
-    efa: conservative,
-    cfa: Math.max(cfaFloor, conservative),
-    invarianza: Math.max(400, conservative * 2),
+    confiabilidad: min,
+    afe: ideal,
+    afc: Math.max(ideal, sem),
+    invarianza: Math.max(400, ideal * 2)
   };
 }
 
-function normalCdf(x) {
-  const t = 1 / (1 + 0.2316419 * Math.abs(x));
-  const d = 0.3989423 * Math.exp((-x * x) / 2);
-  let prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
-  if (x > 0) prob = 1 - prob;
-  return prob;
+function evaluateDesignHypothesisCoherence(design, hasHypothesis, hypothesisType) {
+  const experimentalDesigns = ["experimental", "cuasiexperimental", "explicativo"];
+  const relationalDesigns = ["correlacional", "multinivel", "longitudinal"];
+
+  if (hasHypothesis === "no" && (design === "correlacional" || experimentalDesigns.includes(design))) {
+    return { status: "⚠️ Revisar", detail: "El diseño sugiere contraste de hipótesis, pero el módulo de hipótesis está desactivado." };
+  }
+  if (hasHypothesis === "si" && design === "descriptivo" && hypothesisType !== "descriptiva") {
+    return { status: "⚠️ Inconsistente", detail: "Diseño descriptivo con hipótesis no descriptiva: redefina diseño o sistema de hipótesis." };
+  }
+  if (hasHypothesis === "si" && hypothesisType === "causal" && !experimentalDesigns.includes(design)) {
+    return { status: "⚠️ Inconsistente", detail: "Hipótesis causal requiere preferentemente diseño experimental/cuasi/explicativo." };
+  }
+  if (hasHypothesis === "si" && hypothesisType === "correlacional" && !relationalDesigns.includes(design)) {
+    return { status: "⚠️ Ajustar", detail: "Hipótesis correlacional con diseño no relacional; considere diseño correlacional o longitudinal." };
+  }
+  return { status: "✅ Coherente", detail: "Alineación adecuada entre diseño metodológico y sistema de hipótesis." };
 }
 
-function approximatePowerCorrelation(n, rho, alpha = 0.05) {
-  if (n <= 3 || Math.abs(rho) >= 1) return 0;
-  const zr = 0.5 * Math.log((1 + rho) / (1 - rho));
-  const se = 1 / Math.sqrt(n - 3);
-  const zcrit = 1.96;
-  const val = Math.abs(zr) / se;
-  const power = 1 - normalCdf(zcrit - val) + normalCdf(-zcrit - val);
-  return Math.max(0, Math.min(1, power));
-}
-
-function approximatePowerTtest(nPerGroup, d, alpha = 0.05) {
-  if (nPerGroup < 3) return 0;
-  const zAlpha = 1.96;
-  const ncp = d * Math.sqrt(nPerGroup / 2);
-  const power = 1 - normalCdf(zAlpha - ncp) + normalCdf(-zAlpha - ncp);
-  return Math.max(0, Math.min(1, power));
-}
-
-function robustAnalysisRecommendations(design, objective, scaleType) {
-  const recs = [
-    "Diagnóstico de supuestos con enfoque robusto: heterocedasticidad, no normalidad y valores influyentes.",
-    "Reportar tamaños de efecto con intervalos de confianza bootstrap (≥2000 remuestreos).",
-    "Controlar error tipo I por comparaciones múltiples (Holm o FDR Benjamini-Hochberg).",
+function recommendedAnalysis(design, instrumentType) {
+  const common = [
+    "Análisis de calidad de datos (faltantes, atípicos, supuestos).",
+    "Confiabilidad: α de Cronbach y ω de McDonald.",
+    "Tamaño del efecto (d de Cohen, η² parcial o R² ajustado)."
   ];
-  if (design.toLowerCase().includes("experimental") || design.toLowerCase().includes("cuasi")) {
-    recs.push(
-      "Aplicar LMM/GLMM para estructuras anidadas (estudiantes-aula-escuela).",
-      "Usar ANCOVA robusta con covariables de línea base.",
-      "Estimar efectos causales con propensity score cuando no exista aleatorización plena."
-    );
-  }
-  if (objective === "Relacional / explicativo") {
-    recs.push(
-      "Regresión robusta (M-estimadores), revisión de VIF y diagnóstico de residuos.",
-      "SEM con estimadores robustos (MLR/WLSMV) para contrastar modelo teórico."
-    );
-  }
-  if (objective === "Predictivo") {
-    recs.push(
-      "Validación cruzada k-fold y comparación de desempeño fuera de muestra.",
-      "Modelos penalizados (LASSO/Ridge/Elastic Net) para minimizar sobreajuste.",
-      "Reportar calibración/discriminación (AUC, Brier, curvas de calibración)."
-    );
-  }
-  if (scaleType.toLowerCase().includes("ordinal") || scaleType.toLowerCase().includes("likert")) {
-    recs.push(
-      "Usar matrices policóricas y correlaciones robustas para ítems ordinales.",
-      "Para análisis avanzado: modelos IRT politómicos (GRM/PCM)."
-    );
-  }
-  return recs;
-}
 
-function validityRecommendations(instrumentType, scaleType) {
-  return {
-    "Validez de contenido": [
-      "Panel de expertos (5-10), matriz de especificaciones por dimensión.",
-      "Índice V de Aiken por ítem (revisar ítems con V < 0.70).",
-      "Aplicar Delphi en constructos emergentes.",
-    ],
-    "Validez de proceso de respuesta": [
-      "Entrevistas cognitivas y protocolo think-aloud.",
-      "Revisar tiempos de respuesta y patrones atípicos.",
-    ],
-    "Validez de estructura interna": [
-      "AFE con extracción robusta + rotación oblicua.",
-      "AFC con CFI/TLI > 0.90, RMSEA < 0.08, SRMR < 0.08.",
-      "Invarianza métrica/escalar por grupos relevantes.",
-    ],
-    "Validez convergente/discriminante": [
-      "Correlacionar con instrumentos criterio y constructos distintos.",
-      "En SEM: AVE > 0.50 y HTMT para discriminación.",
-    ],
-    "Confiabilidad": [
-      "Alfa de Cronbach y Omega de McDonald por dimensiones.",
-      "Test-retest con ICC cuando aplique temporalidad.",
-      "Kappa/ICC interevaluador para rúbricas y observación.",
-      "Alfa/omega ordinal para escalas Likert.",
-    ],
-    "Observación específica": [
-      `Instrumento declarado: ${instrumentType}.`,
-      `Escala predominante: ${scaleType}.`,
-      "Mantener trazabilidad metodológica para sustento de tesis doctoral.",
-    ],
+  const specific = {
+    descriptivo: ["Frecuencias, medidas de tendencia central y dispersión.", "Intervalos de confianza de parámetros descriptivos."],
+    correlacional: ["Correlación de Pearson/Spearman según nivel de medición.", "Regresión lineal o logística según la variable dependiente."],
+    explicativo: ["Regresión múltiple/jerárquica y control de covariables.", "Evaluación de mediación/moderación con bootstrap."],
+    cuasiexperimental: ["Pruebas t/ANOVA-ANCOVA según número de grupos.", "Modelos de diferencias en diferencias si hay línea base."],
+    experimental: ["ANOVA factorial/repetidas o modelos lineales mixtos.", "Contrastes post hoc con ajuste por multiplicidad."],
+    longitudinal: ["Modelos de crecimiento y panel.", "Modelos mixtos con efectos aleatorios."],
+    multinivel: ["Modelos jerárquicos lineales (HLM).", "ICC y partición de varianza por nivel."]
   };
-}
 
-function getFormData() {
-  return {
-    researchType: $("researchType").value,
-    design: $("design").value,
-    objective: $("objective").value,
-    instrumentType: $("instrumentType").value,
-    scaleType: $("scaleType").value,
-    items: parseInt($("items").value || "0", 10),
-    modelComplexity: $("modelComplexity").value,
-    universeKnown: $("universeKnown").checked,
-    universeSize: parseInt($("universeSize").value || "0", 10),
-    confidence: parseFloat($("confidence").value),
-    marginError: parseFloat($("marginError").value),
-    expectedProp: parseFloat($("expectedProp").value),
+  const instrumentHints = {
+    likert: "Use policóricas y estimadores robustos (WLSMV/MLR) para estructura factorial.",
+    diferencial_osgood: "Revise validez convergente/discriminante por dimensiones semánticas.",
+    guttman: "Considere coeficiente de reproducibilidad y escalabilidad.",
+    thurstone: "Valide pesos de ítems y estabilidad entre jueces.",
+    prueba_logro: "Reporte dificultad/discriminación de ítems y KR-20/omega.",
+    prueba_estandarizada: "Incluya equiparación, sesgo DIF e invarianza por grupos.",
+    rubrica: "Agregue acuerdo interevaluador (Kappa/ICC).",
+    cotejo: "Use Kappa de Cohen/Fleiss y consistencia entre observadores.",
+    registro_frecuencia: "Aplique modelos de conteo (Poisson/NegBin) si corresponde.",
+    registros_bigdata: "Evalúe sesgo de selección y validación cruzada de modelos predictivos."
   };
+
+  return [...common, ...(specific[design] || specific.descriptivo), instrumentHints[instrumentType] || ""].filter(Boolean);
 }
 
-function asList(items) {
-  return `<ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
-}
-
-function toTable(headers, rows) {
-  const h = `<tr>${headers.map(x => `<th>${x}</th>`).join("")}</tr>`;
-  const b = rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("");
-  return `<table>${h}${b}</table>`;
+function toggleConditionalBlocks() {
+  $("hypothesisSection").classList.toggle("hidden", $("hasHypothesis").value !== "si");
+  $("universeSizeLabel").classList.toggle("hidden", $("universeKnown").value !== "si");
 }
 
 function render() {
-  const data = getFormData();
-  const z = zFromConfidence(data.confidence);
-  const n0 = cochranSampleSize(z, data.expectedProp, data.marginError);
-  const nFinal = data.universeKnown ? finitePopulationCorrection(n0, data.universeSize) : n0;
-  const valS = recommendedValidationSample(data.items, data.modelComplexity);
-  const powerT = approximatePowerTtest(Math.max(10, Math.floor(nFinal / 2)), 0.4);
-  const powerR = approximatePowerCorrelation(Math.max(30, Math.floor(nFinal)), 0.25);
+  const data = {};
+  formIds.forEach((id) => {
+    data[id] = $(id).value;
+  });
+  data.objectivesSpecific = getDynamicValues("obj-spec");
+  data.hypotheses = getDynamicValues("hyp-entry");
 
-  $("sampleMain").textContent = `${Math.ceil(nFinal)} sujetos`;
-  $("powerT").textContent = powerT.toFixed(2);
-  $("powerR").textContent = powerR.toFixed(2);
+  const items = Math.max(1, Number(data.items || 1));
+  const nReal = Math.max(1, Number(data.availableSample || 1));
+  const e = Math.max(0.01, Number(data.marginError || 0.05));
+  const z = zFromConfidence(data.confidence);
+  const n0 = cochranSampleSize(z, 0.5, e);
+  const N = data.universeKnown === "si" ? Number(data.universeSize || 0) : 0;
+  const nInferential = Math.ceil(finitePopulationCorrection(n0, N));
+  const psych = psychometricRequirements(items, data.modelComplexity);
+  const coherence = evaluateDesignHypothesisCoherence(data.design, data.hasHypothesis, data.hypothesisType);
+  const analysisPlan = recommendedAnalysis(data.design, data.instrumentType);
+
+  const nonProbWarning = ["conveniencia", "bola_nieve"].includes(data.samplingType)
+    ? "⚠️ Muestreo no probabilístico: limitar inferencia poblacional y enfatizar validez interna/contextual."
+    : "✅ Muestreo probabilístico: se favorece generalización poblacional si se cumplen supuestos.";
+
+  $("cardCochran").textContent = `${nInferential} sujetos`;
+  $("cardPsych").textContent = `${psych.afe} sujetos`;
+  $("cardCoherence").textContent = coherence.status;
 
   $("metodologia").innerHTML = `
-    <h3>Ruta metodológica sugerida</h3>
-    <ul>
-      <li><b>Tipo:</b> ${data.researchType}</li>
-      <li><b>Diseño:</b> ${data.design}</li>
-      <li><b>Finalidad:</b> ${data.objective}</li>
-      <li><b>Instrumento principal:</b> ${data.instrumentType}</li>
-      <li><b>Escala:</b> ${data.scaleType}</li>
-    </ul>
-    <ol>
-      <li>Planteamiento del problema, hipótesis y modelo teórico.</li>
-      <li>Operacionalización de variables y matriz de consistencia.</li>
-      <li>Diseño y pilotaje del instrumento.</li>
-      <li>Acopio de evidencias de validez y confiabilidad.</li>
-      <li>Levantamiento de datos con control de sesgos.</li>
-      <li>Análisis descriptivo, inferencial robusto y modelamiento avanzado.</li>
-      <li>Interpretación y discusión con implicaciones educativas.</li>
-    </ol>`;
+    <article class="advice-card">
+      <h3>Matriz de coherencia metodológica</h3>
+      <p><strong>Título:</strong> ${data.studyTitle || "Sin definir"}</p>
+      <p><strong>Objetivo general:</strong> ${data.objectiveGeneral || "Sin definir"}</p>
+      <h4>Objetivos específicos</h4>
+      <ul>${(data.objectivesSpecific.length ? data.objectivesSpecific : ["No se han registrado objetivos específicos"]).map((o) => `<li>${o}</li>`).join("")}</ul>
+      <p><strong>Tipo de investigación:</strong> ${data.researchType}. <strong>Diseño:</strong> ${data.design}.</p>
+      <p class="status-line"><strong>Coherencia diseño↔hipótesis:</strong> ${coherence.status}. ${coherence.detail}</p>
+    </article>
+    ${data.hasHypothesis === "si" ? `
+      <article class="advice-card success-card">
+        <h3>Sistema de hipótesis</h3>
+        <p><strong>Tipo:</strong> ${data.hypothesisType}</p>
+        <ul>${(data.hypotheses.length ? data.hypotheses : ["No se han redactado hipótesis específicas"]).map((h) => `<li>${h}</li>`).join("")}</ul>
+      </article>` : ""}
+  `;
 
-  const sampleRows = [
-    ["Z", z.toFixed(3)], ["p", data.expectedProp], ["q", (1 - data.expectedProp).toFixed(2)],
-    ["Error", data.marginError], ["n0 (Cochran)", n0.toFixed(2)], ["n ajustada", Math.ceil(nFinal)]
-  ];
-  const valRows = Object.entries(valS).map(([k, v]) => [k, v]);
+  const realError = (Math.sqrt((z * z * 0.25) / nReal) * 100).toFixed(2);
+
   $("muestreo").innerHTML = `
-    <h3>Estimación de muestra</h3>
-    ${toTable(["Parámetro", "Valor"], sampleRows)}
-    <h4>Sujetos sugeridos para validación de instrumento</h4>
-    ${toTable(["Fase", "Sujetos"], valRows)}
-    <p><b>Recomendaciones:</b> usar muestreo probabilístico estratificado; ajustar por no respuesta (10%-20%) y efecto de diseño si procede.</p>`;
+    <article class="advice-card">
+      <h3>Diagnóstico de muestra</h3>
+      <div class="metric-grid">
+        <div class="metric"><span>n inferencial (Cochran)</span><strong>${nInferential}</strong></div>
+        <div class="metric"><span>n disponible</span><strong>${nReal}</strong></div>
+        <div class="metric"><span>Error estimado real</span><strong>${realError}%</strong></div>
+        <div class="metric"><span>Piloto psicométrico</span><strong>${psych.piloto}</strong></div>
+      </div>
+      <p>${nReal >= nInferential ? "✅ La muestra cubre el mínimo inferencial." : `⚠️ La muestra no alcanza el mínimo inferencial (${nInferential}).`}</p>
+      <p>${nonProbWarning}</p>
+    </article>
+  `;
 
-  const val = validityRecommendations(data.instrumentType, data.scaleType);
-  $("validez").innerHTML = Object.entries(val)
-    .map(([k, list]) => `<h3>${k}</h3>${asList(list)}`)
-    .join("");
+  $("validez").innerHTML = `
+    <article class="advice-card">
+      <h3>Protocolo de validez y confiabilidad</h3>
+      <ul>
+        <li><strong>Piloto:</strong> ${psych.piloto} sujetos.</li>
+        <li><strong>Confiabilidad (α/ω):</strong> ${psych.confiabilidad} sujetos.</li>
+        <li><strong>AFE:</strong> ${psych.afe} sujetos.</li>
+        <li><strong>AFC:</strong> ${psych.afc} sujetos.</li>
+        <li><strong>Invarianza:</strong> ${psych.invarianza} sujetos.</li>
+      </ul>
+      <p class="status-line">${nReal >= psych.afc ? "✅ Condición favorable para AFC." : "⚠️ Recomendado priorizar AFE o ampliar muestra antes de AFC."}</p>
+    </article>
+  `;
 
-  const robust = robustAnalysisRecommendations(data.design, data.objective, data.scaleType);
-  const matrixRows = [
-    ["Descriptivo", "Nominal/Ordinal", "Frecuencias robustas + IC bootstrap", "Barras con IC"],
-    ["Relacional", "Ordinal/Intervalo", "Spearman robusto / regresión robusta", "Heatmap"],
-    ["Impacto", "Intervalo/Razón", "LMM/GLMM, DID, ANCOVA robusta", "Forest plot"],
-    ["Predictivo", "Mixta", "SEM y modelos penalizados", "Importancia de variables"],
-  ];
-  $("analisis").innerHTML = `<h3>Procedimientos robustos y avanzados</h3>${asList(robust)}
-    <h4>Matriz de decisión analítica</h4>
-    ${toTable(["Objetivo", "Escala", "Procedimiento", "Visualización"], matrixRows)}`;
+  $("analisis").innerHTML = `
+    <article class="advice-card gold-card">
+      <h3>Análisis estadístico recomendado</h3>
+      <ol>${analysisPlan.map((step) => `<li>${step}</li>`).join("")}</ol>
+    </article>
+  `;
 
-  window.__lastResults = { data, z, n0, nFinal, valS, powerT, powerR, robust };
+  window.__lastResults = { ...data, nInferential, psychometricIdeal: psych.afe, coherence: coherence.status, realError };
 }
 
 function saveConfig() {
-  localStorage.setItem("dashboard_cuantitativo_config", JSON.stringify(getFormData()));
-  alert("Configuración guardada en este navegador.");
+  const config = {};
+  formIds.forEach((id) => {
+    config[id] = $(id).value;
+  });
+  config.objectivesSpecific = getDynamicValues("obj-spec");
+  config.hypotheses = getDynamicValues("hyp-entry");
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  alert("Proyecto guardado localmente.");
 }
 
 function loadConfig() {
-  const raw = localStorage.getItem("dashboard_cuantitativo_config");
-  if (!raw) return alert("No hay una configuración guardada.");
-  const cfg = JSON.parse(raw);
-  for (const id of formIds) {
-    const el = $(id);
-    if (!el || !(id in cfg)) continue;
-    if (el.type === "checkbox") el.checked = !!cfg[id];
-    else el.value = cfg[id];
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) {
+    alert("No hay un proyecto guardado.");
+    return;
   }
+  const config = JSON.parse(saved);
+  formIds.forEach((id) => {
+    if (config[id] !== undefined) $(id).value = config[id];
+  });
+  setDynamicValues("objectivesContainer", "obj-spec", config.objectivesSpecific || [], "Objetivo específico...");
+  setDynamicValues("hypothesesContainer", "hyp-entry", config.hypotheses || [], "H1: ...");
+  toggleConditionalBlocks();
   render();
 }
 
 function clearConfig() {
-  localStorage.removeItem("dashboard_cuantitativo_config");
-  alert("Datos locales eliminados.");
-}
-
-function buildExportRows() {
-  const r = window.__lastResults;
-  if (!r) return [];
-  return [
-    ["Tipo", r.data.researchType],
-    ["Diseño", r.data.design],
-    ["Objetivo", r.data.objective],
-    ["Instrumento", r.data.instrumentType],
-    ["Escala", r.data.scaleType],
-    ["Ítems", r.data.items],
-    ["Muestra recomendada", Math.ceil(r.nFinal)],
-    ["Potencia t", r.powerT.toFixed(3)],
-    ["Potencia r", r.powerR.toFixed(3)],
-  ];
-}
-
-function exportCSV() {
-  const rows = [["Campo", "Valor"], ...buildExportRows()];
-  const csv = rows.map(r => r.map(v => `"${String(v).replaceAll('"', '""')}"`).join(",")).join("\n");
-  downloadFile("dashboard_resultados.csv", "text/csv;charset=utf-8;", csv);
-}
-
-function exportXLS() {
-  const rows = buildExportRows();
-  const html = `<table><tr><th>Campo</th><th>Valor</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table>`;
-  downloadFile("dashboard_resultados.xls", "application/vnd.ms-excel", html);
-}
-
-function exportJSON() {
-  const payload = window.__lastResults || {};
-  downloadFile("dashboard_resultados.json", "application/json", JSON.stringify(payload, null, 2));
-}
-
-function exportPDF() {
-  window.print();
+  if (!confirm("¿Desea limpiar el formulario y eliminar el guardado local?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  window.location.reload();
 }
 
 function downloadFile(name, type, content) {
@@ -291,22 +253,71 @@ function downloadFile(name, type, content) {
   URL.revokeObjectURL(url);
 }
 
-document.querySelectorAll(".tab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-    btn.classList.add("active");
-    $(btn.dataset.tab).classList.add("active");
+function exportCSV() {
+  const data = window.__lastResults || {};
+  let csv = "campo,valor\n";
+  Object.entries(data).forEach(([k, v]) => {
+    csv += `"${k}","${String(v).replace(/"/g, '""')}"\n`;
   });
-});
+  downloadFile("ssdm_resultados.csv", "text/csv;charset=utf-8;", csv);
+}
 
-$("runBtn").addEventListener("click", render);
-$("saveBtn").addEventListener("click", saveConfig);
-$("loadBtn").addEventListener("click", loadConfig);
-$("clearBtn").addEventListener("click", clearConfig);
-$("exportCsv").addEventListener("click", exportCSV);
-$("exportXls").addEventListener("click", exportXLS);
-$("exportPdf").addEventListener("click", exportPDF);
-$("exportJson").addEventListener("click", exportJSON);
+function exportXLS() {
+  const data = window.__lastResults || {};
+  const rows = Object.entries(data).map(([k, v]) => `<tr><td>${k}</td><td>${String(v)}</td></tr>`).join("");
+  const html = `<table><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>${rows}</tbody></table>`;
+  downloadFile("ssdm_resultados.xls", "application/vnd.ms-excel", html);
+}
 
-render();
+function exportJSON() {
+  downloadFile("ssdm_resultados.json", "application/json", JSON.stringify(window.__lastResults || {}, null, 2));
+}
+
+function setupTabs() {
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
+      tab.classList.add("active");
+      $(tab.dataset.tab).classList.add("active");
+    });
+  });
+}
+
+function setup() {
+  createDynamicRow("objectivesContainer", "obj-spec", "Objetivo específico...");
+  createDynamicRow("hypothesesContainer", "hyp-entry", "H1: ...");
+
+  $("addObjective").addEventListener("click", () => createDynamicRow("objectivesContainer", "obj-spec", "Objetivo específico..."));
+  $("addHypothesis").addEventListener("click", () => createDynamicRow("hypothesesContainer", "hyp-entry", "H1: ..."));
+
+  $("hasHypothesis").addEventListener("change", toggleConditionalBlocks);
+  $("universeKnown").addEventListener("change", toggleConditionalBlocks);
+
+  $("runBtn").addEventListener("click", render);
+  $("saveBtn").addEventListener("click", saveConfig);
+  $("loadBtn").addEventListener("click", loadConfig);
+  $("clearBtn").addEventListener("click", clearConfig);
+
+  $("exportCsv").addEventListener("click", exportCSV);
+  $("exportXls").addEventListener("click", exportXLS);
+  $("exportPdf").addEventListener("click", () => window.print());
+  $("exportJson").addEventListener("click", exportJSON);
+
+  setupTabs();
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    const config = JSON.parse(saved);
+    formIds.forEach((id) => {
+      if (config[id] !== undefined) $(id).value = config[id];
+    });
+    setDynamicValues("objectivesContainer", "obj-spec", config.objectivesSpecific || [], "Objetivo específico...");
+    setDynamicValues("hypothesesContainer", "hyp-entry", config.hypotheses || [], "H1: ...");
+  }
+
+  toggleConditionalBlocks();
+  render();
+}
+
+window.addEventListener("DOMContentLoaded", setup);
